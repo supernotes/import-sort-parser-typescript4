@@ -171,6 +171,9 @@ function parseImportDeclaration(
             isTypeImport = element.isTypeOnly;
           }
 
+          console.log(element)
+          console.log(isTypeImport)
+
           name = (isTypeImport ? "type " : "") + fixMultipleUnderscore(name);
           alias = (isTypeImport ? "type " : "") + fixMultipleUnderscore(alias);
           imported.namedMembers.push({ name, alias });
