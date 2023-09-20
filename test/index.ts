@@ -310,24 +310,24 @@ import { a, b, c } from "xyz"
   });
 
   // test TS 4.5 import types
-  it("should preserve `type` annotations within TS imports", () => {
+  it("should preserve `type` annotations in named TS imports", () => {
     const actual = `import { a, type b, c } from "xyz"`;
     const imported = parseImports(actual)[0];
     const expected = `import { a, type b, c } from "xyz"`;
     assert.equal(formatImport(actual, imported), expected);
   });
 
-  it("should preserve `type` annotations within TS imports", () => {
+  it("should preserve `type` annotations for TS imports", () => {
     const actual = `import type { a, type b, c } from "xyz"`;
     const imported = parseImports(actual)[0];
     const expected = `import type { a, type b, c } from "xyz"`;
     assert.equal(formatImport(actual, imported), expected);
   });
 
-  it("should preserve `type` annotations within TS imports", () => {
-    const actual = `import { a, b, c } from "xyz"`;
+  it("should preserve single `type` annotation for TS imports", () => {
+    const actual = `import type { a, b, c } from "xyz"`;
     const imported = parseImports(actual)[0];
-    const expected = `import { a, b, c } from "xyz"`;
+    const expected = `import type { a, b, c } from "xyz"`;
     assert.equal(formatImport(actual, imported), expected);
   });
 });
