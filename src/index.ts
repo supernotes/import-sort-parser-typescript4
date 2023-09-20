@@ -164,21 +164,15 @@ function parseImportDeclaration(
             name = element.propertyName.text;
           }
 
-          let isTypeImport = false;
-          if ((typescript as any).isImportClause(element)) {
-            isTypeImport = element.isTypeOnly;
-          } else if ((typescript as any).isImportSpecifier(element)) {
-            isTypeImport = element.isTypeOnly;
+          const member: NamedMember = {
+            name: fixMultipleUnderscore(name), 
+            alias: fixMultipleUnderscore(alias), 
+          }
+          if (element.isTypeOnly) {
+            member.type = true;
           }
 
-          if (isTypeImport) {
-            name = alias = "type " + fixMultipleUnderscore(name);
-          } else {
-            name = fixMultipleUnderscore(name);
-            alias = fixMultipleUnderscore(alias);
-          }
-
-          imported.namedMembers.push({ name: name + "ok", alias });
+          imported.namedMembers.push(member);
         }
       }
     }
@@ -241,14 +235,13 @@ export function formatImport(
 ): string {
   const importStart = imported.importStart || imported.start;
   const importEnd = imported.importEnd || imported.end;
-
-  const importCode = code.substring(importStart, importEnd);
-
   const { namedMembers } = imported;
 
   if (namedMembers.length === 0) {
     return code.substring(imported.start, imported.end);
   }
+
+  const importCode = code.substring(importStart, importEnd);
 
   const newImportCode = importCode.replace(
     /\{[\s\S]*\}/g,
@@ -264,7 +257,6 @@ export function formatImport(
       }
 
       const useSpaces = namedMembersString.charAt(1) === " ";
-
       const userTrailingComma = namedMembersString
         .replace("}", "")
         .trim()
@@ -285,7 +277,7 @@ export function formatImport(
     code.substring(imported.start, importStart) +
     newImportCode +
     code.substring(importEnd, importEnd + (imported.end - importEnd))
-  );
+  )
 }
 
 function formatNamedMembers(
@@ -301,15 +293,14 @@ function formatNamedMembers(
       "{" +
       eol +
       namedMembers
-        .map(({ name, alias }, index) => {
+        .map(({ name, alias, type }, index) => {
           const lastImport = index === namedMembers.length - 1;
           const comma = !useTrailingComma && lastImport ? "" : ",";
-
+          const typeModifier = type ? "type " : "";
           if (name === alias) {
-            return `${prefix}${name}${comma}` + eol;
+            return `${prefix}${typeModifier}${name}${comma}` + eol;
           }
-
-          return `${prefix}${name} as ${alias}${comma}` + eol;
+          return `${prefix}${typeModifier}${name} as ${alias}${comma}` + eol;
         })
         .join("") +
       "}"
@@ -323,12 +314,12 @@ function formatNamedMembers(
     "{" +
     space +
     namedMembers
-      .map(({ name, alias }) => {
+      .map(({ name, alias, type }) => {
+        const typeModifier = type ? "type " : "";
         if (name === alias) {
-          return `${name}`;
+          return `${typeModifier}${name}`;
         }
-
-        return `${name} as ${alias}`;
+        return `${typeModifier}${name} as ${alias}`;
       })
       .join(", ") +
     comma +

@@ -75,7 +75,7 @@ import {a, type b} from "c";
     assert.equal(imports[7].end, imports[6].end + 1 + 28);
     assert.equal(imports[7].moduleName, "c");
     assert.deepEqual(imports[7].namedMembers![0], { name: "a", alias: "a" });
-    assert.deepEqual(imports[7].namedMembers![1], { name: "type b", alias: "type b" });
+    assert.deepEqual(imports[7].namedMembers![1], { name: "b", alias: "b", type: true });
   });
 
   it("should deal with single quotes (issue #22 and #15)", () => {
