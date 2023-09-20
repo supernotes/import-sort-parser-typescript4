@@ -1,14 +1,14 @@
 import "mocha";
 
-import {formatImport, parseImports} from "../src";
+import { formatImport, parseImports } from "../src";
 
-import {IImport} from "import-sort-parser";
-import {assert} from "chai";
+import { IImport } from "import-sort-parser";
+import { assert } from "chai";
 
 describe("parse", () => {
   it("should return imports", () => {
     const imports = parseImports(
-`
+      `
 import "a";
 import b from "b";
 import {c} from "c";
@@ -16,11 +16,12 @@ import d, {e} from "f";
 import g, {h as hh} from "i";
 import * as j from "k";
 import l, * as m from "o";
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports.length, 7);
 
-    imports.forEach(imported => {
+    imports.forEach((imported) => {
       assert.equal(imported.type, "import");
     });
 
@@ -39,21 +40,21 @@ import l, * as m from "o";
     assert.equal(imports[2].start, imports[1].end + 1);
     assert.equal(imports[2].end, imports[1].end + 1 + 20);
     assert.equal(imports[2].moduleName, "c");
-    assert.deepEqual(imports[2].namedMembers![0], {name: "c", alias: "c"});
+    assert.deepEqual(imports[2].namedMembers![0], { name: "c", alias: "c" });
 
     // import d, {e} from "f";
     assert.equal(imports[3].start, imports[2].end + 1);
     assert.equal(imports[3].end, imports[2].end + 1 + 23);
     assert.equal(imports[3].moduleName, "f");
     assert.equal(imports[3].defaultMember, "d");
-    assert.deepEqual(imports[3].namedMembers![0], {name: "e", alias: "e"});
+    assert.deepEqual(imports[3].namedMembers![0], { name: "e", alias: "e" });
 
     // import g, {h as hh} from "i";
     assert.equal(imports[4].start, imports[3].end + 1);
     assert.equal(imports[4].end, imports[3].end + 1 + 29);
     assert.equal(imports[4].moduleName, "i");
     assert.equal(imports[4].defaultMember, "g");
-    assert.deepEqual(imports[4].namedMembers![0], {name: "h", alias: "hh"});
+    assert.deepEqual(imports[4].namedMembers![0], { name: "h", alias: "hh" });
 
     // import * as j from "k";
     assert.equal(imports[5].start, imports[4].end + 1);
@@ -75,15 +76,16 @@ import 'a';
 `);
 
     assert.equal(imports[0].moduleName, "a");
-  })
+  });
 
   it("should include nearby comments", () => {
     const imports = parseImports(
-`
+      `
 // Above
 import "a"; // Besides
 // Below
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports[0].start, 0);
     assert.equal(imports[0].end, 31);
@@ -91,13 +93,14 @@ import "a"; // Besides
 
   it("should include all comments", () => {
     const imports = parseImports(
-`
+      `
 // Above
 // Above
 import "a"; // Besides
 // Below
 // Below
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports[0].start, 0);
     assert.equal(imports[0].end, 40);
@@ -105,13 +108,14 @@ import "a"; // Besides
 
   it("should only include nearby comments", () => {
     const imports = parseImports(
-`
+      `
 // Above
 
 import "a"; // Besides
 
 // Below
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports[0].start, 10);
     assert.equal(imports[0].end, 10 + 22);
@@ -119,10 +123,11 @@ import "a"; // Besides
 
   it("should not include shebang", () => {
     const imports = parseImports(
-`
+      `
 #!/bin/sh
 import "a";
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports[0].start, 10);
     assert.equal(imports[0].end, 10 + 11);
@@ -130,7 +135,7 @@ import "a";
 
   it("should include all nearby but exclude far away comments", () => {
     const imports = parseImports(
-`
+      `
 // Above
 
 // Above
@@ -138,7 +143,8 @@ import "a"; // Besides
 // Below
 
 // Below
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports[0].start, 10);
     assert.equal(imports[0].end, 10 + 31);
@@ -146,10 +152,11 @@ import "a"; // Besides
 
   it("should not treat trailing comment on previous import as leading comment", () => {
     const imports = parseImports(
-`
+      `
 import "a"; // Besides
 import "b";
-`.trim());
+`.trim(),
+    );
 
     assert.equal(imports[0].start, 0);
     assert.equal(imports[0].end, 22);
@@ -161,8 +168,7 @@ import "b";
 
 describe("formatImport", () => {
   it("CR+LF, named members, typescriptshould not change one-line imports", () => {
-    const actual =
-`
+    const actual = `
 import {a, b, c} from "xyz"
 `.trim();
 
@@ -172,14 +178,13 @@ import {a, b, c} from "xyz"
       type: "import",
       moduleName: "xyz",
       namedMembers: [
-        {name: "a", alias: "a"},
-        {name: "b", alias: "b"},
-        {name: "c", alias: "c"},
+        { name: "a", alias: "a" },
+        { name: "b", alias: "b" },
+        { name: "c", alias: "c" },
       ],
     };
 
-    const expected =
-`
+    const expected = `
 import {a, b, c} from "xyz"
 `.trim();
 
@@ -187,8 +192,7 @@ import {a, b, c} from "xyz"
   });
 
   it("should not change full multi-line imports with same indendation", () => {
-    const actual =
-`
+    const actual = `
 import {
   a,
   b,
@@ -202,14 +206,13 @@ import {
       type: "import",
       moduleName: "xyz",
       namedMembers: [
-        {name: "a", alias: "a"},
-        {name: "b", alias: "b"},
-        {name: "c", alias: "c"},
+        { name: "a", alias: "a" },
+        { name: "b", alias: "b" },
+        { name: "c", alias: "c" },
       ],
     };
 
-    const expected =
-`
+    const expected = `
 import {
   a,
   b,
@@ -221,8 +224,7 @@ import {
   });
 
   it("should change partial multi-line imports indented by 2 spaces", () => {
-    const actual =
-`
+    const actual = `
 import {a,
   b,
 c
@@ -235,14 +237,13 @@ c
       type: "import",
       moduleName: "xyz",
       namedMembers: [
-        {name: "a", alias: "a"},
-        {name: "b", alias: "b"},
-        {name: "c", alias: "c"},
+        { name: "a", alias: "a" },
+        { name: "b", alias: "b" },
+        { name: "c", alias: "c" },
       ],
     };
 
-    const expected =
-`
+    const expected = `
 import {
   a,
   b,
@@ -254,8 +255,7 @@ import {
   });
 
   it("should change partial multi-line imports indented by 4 spaces", () => {
-    const actual =
-`
+    const actual = `
 import {a,
     b,
 c
@@ -268,14 +268,13 @@ c
       type: "import",
       moduleName: "xyz",
       namedMembers: [
-        {name: "a", alias: "a"},
-        {name: "b", alias: "b"},
-        {name: "c", alias: "c"},
+        { name: "a", alias: "a" },
+        { name: "b", alias: "b" },
+        { name: "c", alias: "c" },
       ],
     };
 
-    const expected =
-`
+    const expected = `
 import {
     a,
     b,
@@ -287,8 +286,7 @@ import {
   });
 
   it("should preserve whitespace around braces in one-line imports", () => {
-    const actual =
-`
+    const actual = `
 import { a, b, c } from "xyz"
 `.trim();
 
@@ -298,14 +296,13 @@ import { a, b, c } from "xyz"
       type: "import",
       moduleName: "xyz",
       namedMembers: [
-        {name: "a", alias: "a"},
-        {name: "b", alias: "b"},
-        {name: "c", alias: "c"},
+        { name: "a", alias: "a" },
+        { name: "b", alias: "b" },
+        { name: "c", alias: "c" },
       ],
     };
 
-    const expected =
-`
+    const expected = `
 import { a, b, c } from "xyz"
 `.trim();
 
@@ -316,22 +313,21 @@ import { a, b, c } from "xyz"
   it("should preserve `type` annotations within TS imports", () => {
     const actual = `import { a, type b, c } from "xyz"`;
     const imported = parseImports(actual)[0];
-    const expected = `import { a, type b, c } from "xyz"`
+    const expected = `import { a, type b, c } from "xyz"`;
     assert.equal(formatImport(actual, imported), expected);
   });
 
   it("should preserve `type` annotations within TS imports", () => {
     const actual = `import type { a, type b, c } from "xyz"`;
     const imported = parseImports(actual)[0];
-    const expected = `import type { a, type b, c } from "xyz"`
+    const expected = `import type { a, type b, c } from "xyz"`;
     assert.equal(formatImport(actual, imported), expected);
   });
 
   it("should preserve `type` annotations within TS imports", () => {
     const actual = `import { a, b, c } from "xyz"`;
     const imported = parseImports(actual)[0];
-    const expected = `import { a, b, c } from "xyz"`
+    const expected = `import { a, b, c } from "xyz"`;
     assert.equal(formatImport(actual, imported), expected);
   });
-
 });
