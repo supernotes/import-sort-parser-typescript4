@@ -16,10 +16,11 @@ import d, {e} from "f";
 import g, {h as hh} from "i";
 import * as j from "k";
 import l, * as m from "o";
+import {a, type b} from "c";
 `.trim(),
     );
 
-    assert.equal(imports.length, 7);
+    assert.equal(imports.length, 8);
 
     imports.forEach((imported) => {
       assert.equal(imported.type, "import");
@@ -68,6 +69,13 @@ import l, * as m from "o";
     assert.equal(imports[6].moduleName, "o");
     assert.equal(imports[6].defaultMember, "l");
     assert.equal(imports[6].namespaceMember, "m");
+
+    // import {a, type b} from "c";
+    assert.equal(imports[7].start, imports[6].end + 1);
+    assert.equal(imports[7].end, imports[6].end + 1 + 28);
+    assert.equal(imports[7].moduleName, "c");
+    assert.deepEqual(imports[7].namedMembers![0], { name: "a", alias: "a" });
+    assert.deepEqual(imports[7].namedMembers![1], { name: "type b", alias: "type b" });
   });
 
   it("should deal with single quotes (issue #22 and #15)", () => {
