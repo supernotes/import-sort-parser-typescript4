@@ -1,7 +1,9 @@
 import "mocha";
-import {assert} from "chai";
-import {parseImports, formatImport} from "../src";
+
+import {formatImport, parseImports} from "../src";
+
 import {IImport} from "import-sort-parser";
+import {assert} from "chai";
 
 describe("parse", () => {
   it("should return imports", () => {
@@ -309,4 +311,27 @@ import { a, b, c } from "xyz"
 
     assert.equal(formatImport(actual, imported), expected);
   });
+
+  // test TS 4.5 import types
+  it("should preserve `type` annotations within TS imports", () => {
+    const actual = `import { a, type b, c } from "xyz"`;
+    const imported = parseImports(actual)[0];
+    const expected = `import { a, type b, c } from "xyz"`
+    assert.equal(formatImport(actual, imported), expected);
+  });
+
+  it("should preserve `type` annotations within TS imports", () => {
+    const actual = `import type { a, type b, c } from "xyz"`;
+    const imported = parseImports(actual)[0];
+    const expected = `import type { a, type b, c } from "xyz"`
+    assert.equal(formatImport(actual, imported), expected);
+  });
+
+  it("should preserve `type` annotations within TS imports", () => {
+    const actual = `import { a, b, c } from "xyz"`;
+    const imported = parseImports(actual)[0];
+    const expected = `import { a, b, c } from "xyz"`
+    assert.equal(formatImport(actual, imported), expected);
+  });
+
 });

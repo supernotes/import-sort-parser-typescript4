@@ -116,7 +116,7 @@ function parseImportDeclaration(
       // }
 
       previous = current;
-      ({end} = comments[previous]);
+      ({ end } = comments[previous]);
       current += 1;
     }
   }
@@ -129,51 +129,57 @@ function parseImportDeclaration(
 
   const imported: IImport = {
     start,
-    end,
-    importStart,
-    importEnd,
-    type,
-    moduleName,
-    namedMembers: [],
-  };
-
-  const {importClause} = importDeclaration;
-
-  if (importClause) {
-    if (importClause.name) {
-      imported.defaultMember = importClause.name.text;
-    }
-
-    const {namedBindings} = importClause;
-
-    if (namedBindings) {
-      if (namedBindings.kind === typescript.SyntaxKind.NamespaceImport) {
-        const namespaceImport = namedBindings as typescript.NamespaceImport;
-        imported.namespaceMember = namespaceImport.name.text;
+      end,
+      importStart,
+      importEnd,
+      type,
+      moduleName,
+      namedMembers: [],
+    };
+  
+    const { importClause } = importDeclaration;
+  
+    if (importClause) {
+      if (importClause.name) {
+        imported.defaultMember = importClause.name.text;
       }
+  
+      const { namedBindings } = importClause;
+  
+      if (namedBindings) {
+        if (namedBindings.kind === typescript.SyntaxKind.NamespaceImport) {
+          const namespaceImport = namedBindings as typescript.NamespaceImport;
+          imported.namespaceMember = namespaceImport.name.text;
+        }
+  
+        if (namedBindings.kind === typescript.SyntaxKind.NamedImports) {
+          const namedImports = namedBindings as typescript.NamedImports;
+  
+          for (const element of namedImports.elements) {
+            let alias = element.name.text;
+            let name = alias;
+  
+            if (element.propertyName) {
+              name = element.propertyName.text;
+            }
 
-      if (namedBindings.kind === typescript.SyntaxKind.NamedImports) {
-        const namedImports = namedBindings as typescript.NamedImports;
+            let isTypeImport = false;
+            if ((typescript as any).isImportClause(element)) {
+              isTypeImport = element.isTypeOnly;
+            } else if ((typescript as any).isImportSpecifier(element)) {
+              isTypeImport = element.isTypeOnly;
+            }
 
-        for (const element of namedImports.elements) {
-          const alias = element.name.text;
-          let name = alias;
-
-          if (element.propertyName) {
-            name = element.propertyName.text;
+            name = (isTypeImport ? "type " : "") + fixMultipleUnderscore(name);
+            alias = (isTypeImport ? "type " : "") + fixMultipleUnderscore(alias);
+            imported.namedMembers.push({name, alias});
           }
-
-          imported.namedMembers.push({
-            name: fixMultipleUnderscore(name),
-            alias: fixMultipleUnderscore(alias),
-          });
         }
       }
     }
+  
+    return imported;
   }
-
-  return imported;
-}
 
 // This hack circumvents a bug (?) in the TypeScript parser where a named
 // binding's name or alias that consists only of underscores contains an
@@ -232,7 +238,7 @@ export function formatImport(
 
   const importCode = code.substring(importStart, importEnd);
 
-  const {namedMembers} = imported;
+  const { namedMembers } = imported;
 
   if (namedMembers.length === 0) {
     return code.substring(imported.start, imported.end);
@@ -260,9 +266,9 @@ export function formatImport(
 
       return formatNamedMembers(
         namedMembers,
-        useMultipleLines,
-        useSpaces,
-        userTrailingComma,
+      useMultipleLines,
+      useSpaces,
+      userTrailingComma,
         prefix,
         eol,
       );
