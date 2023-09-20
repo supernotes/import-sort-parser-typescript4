@@ -1,6 +1,6 @@
 {
   "name": "import-sort-parser-typescript4",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An import-sort parser based on the TypeScript parser.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
