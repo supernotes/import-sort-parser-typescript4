@@ -178,7 +178,7 @@ function parseImportDeclaration(
             alias = fixMultipleUnderscore(alias);
           }
 
-          imported.namedMembers.push({ name, alias });
+          imported.namedMembers.push({ name: name + "ok", alias });
         }
       }
     }
