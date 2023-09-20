@@ -171,11 +171,13 @@ function parseImportDeclaration(
             isTypeImport = element.isTypeOnly;
           }
 
-          console.log(element)
-          console.log(isTypeImport)
+          if (isTypeImport) {
+            name = alias = "type " + fixMultipleUnderscore(name);
+          } else {
+            name = fixMultipleUnderscore(name);
+            alias = fixMultipleUnderscore(alias);
+          }
 
-          name = (isTypeImport ? "type " : "") + fixMultipleUnderscore(name);
-          alias = (isTypeImport ? "type " : "") + fixMultipleUnderscore(alias);
           imported.namedMembers.push({ name, alias });
         }
       }
